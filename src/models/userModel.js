@@ -4,7 +4,8 @@ const userSchema = new mongoose.Schema({
 
     fname: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     lname: {
         type: String,
@@ -39,7 +40,7 @@ const userSchema = new mongoose.Schema({
                 required: true,
             },
             pincode: {
-                type: String,
+                type: Number,
                 required: true,
             }
         },
@@ -53,7 +54,7 @@ const userSchema = new mongoose.Schema({
                 required: true,
             },
             pincode: {
-                type: String,
+                type: Number,
                 required: true,
             }
         },
