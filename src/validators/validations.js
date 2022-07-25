@@ -5,14 +5,14 @@ const isValidObjectId = (objectId) => {
     return false;
 };
 
-const objectValue = (value) => {
+const isValid = (value) => {
     if (typeof value === "undefined" || value === "null") return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
     return true;
 
 }
 
-const forBody = (value) => {
+const isValidRequest = (value) => {
     if (Object.keys(value).length === 0) return false;
     return true;
 }
@@ -30,7 +30,7 @@ const addressValid = (value) => {
 }
 
 const mobileRegex = (value) => {
-    let phoneRegex = /^([+]\d{2})?\d{10}$/;
+    let phoneRegex =  /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
     if (phoneRegex.test(value))
         return true;
 }
@@ -48,10 +48,10 @@ const passwordRegex = (value) => {
 }
 
 const pinValid = (value) => {
-    let pinregex = /^(\d{4}|^\d{6})$/;
+    let pinregex = /^\d{6}$/;
     if (pinregex.test(value))
         return true;
 }
 
-module.exports = { isValidObjectId, objectValue, forBody, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid }
+module.exports = { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid }
 

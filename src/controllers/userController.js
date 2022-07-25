@@ -3,11 +3,14 @@ const Validators = require('../validators/validations.js');
 const { uploadFile } = require("../aws/aws.js");
 const bcrypt = require('bcrypt');
 
-const { isValidObjectId, objectValue, forBody, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid } = require('../validators/validations.js')
+const { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid } = require('../validators/validations.js')
 
 exports.createUser = async function (req, res) {
     try {
         const { fname, lname, email, profileImage, phone, password, address } = req.body;
+
+        if (!isValidRequest(req.body))
+        return res.status(400).send({ status: false, message: "Request body cannot remain empty" })
         // let street = address.shipping.street;
         // console.log(address);
         // let city = address.shipping.city;
@@ -21,23 +24,22 @@ exports.createUser = async function (req, res) {
         const encryptedPass = await bcrypt.hash(password, 10);
         req.body.password = encryptedPass;
 
-        if (!objectValue(fname))
-            return res.status(400).send({ status: false, message: "fname must be required it cannot remain empty" })
+        if (!isValid(fname))
+            return res.status(400).send({ status: false, message: "fname must be present it cannot remain empty" })
         if (!nameRegex(fname))
             return res.status(400).send({ status: false, message: "Please provide valid fname, it should not contains any special characters and numbers" });
 
-        if (!objectValue(lname))
-            return res.status(400).send({ status: false, message: "lname must be required it cannot remain empty" })
+        if (!isValid(lname))
+            return res.status(400).send({ status: false, message: "lname must be present it cannot remain empty" })
         if (!nameRegex(lname))
             return res.status(400).send({ status: false, message: "Please provide valid lname, it should not contains any special characters and numbers" });
-
 
         const emailId = await UserModel.findOne({ email: email });
 
         if (emailId)
             return res.status(400).send({ status: false, message: "EmailId already taken" });
 
-        if (!objectValue(email))
+        if (!isValid(email))
             return res.status(400).send({ status: false, message: "EmailId must be present" });
 
         if (!mailRegex(email))
@@ -48,13 +50,13 @@ exports.createUser = async function (req, res) {
         if (phoneNo)
             return res.status(400).send({ status: false, message: "Phone number is already taken" });
 
-        if (!objectValue(phone))
+        if (!isValid(phone))
             return res.status(400).send({ status: false, message: "Phone number must be present" });
 
         if (!mobileRegex(phone))
             return res.status(400).send({ status: false, message: "Please provide valid mobile number" });
 
-        if (!objectValue(password))
+        if (!isValid(password))
             return res.status(400).send({ status: false, message: "Password must be present" });
 
         if (!passwordRegex(password))
