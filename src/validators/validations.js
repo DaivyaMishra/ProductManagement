@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const multer = require('multer');
 
 const isValidObjectId = (objectId) => {
     if (mongoose.Types.ObjectId.isValid(objectId)) return true;
@@ -54,10 +55,19 @@ const pinValid = (value) => {
 }
 
 const imageValid = (value) => {
-    let imageRegex = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+    let imageRegex = /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i;
     if(imageRegex.test(value))
     return true;
 }
 
-module.exports = { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid }
+
+const fileFilter = async function(req, file, callback) {
+    var ext = path.extname(file.originalname);
+       if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg' && ext !== '.zip') {
+           return callback(new Error('Only images and zip are allowed'));
+       }
+       callback(null, true); 
+     }
+
+module.exports = { fileFilter, isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid }
 

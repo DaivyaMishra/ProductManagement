@@ -3,10 +3,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { uploadFile } = require("../aws/aws.js");
 
-const { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid } = require('../validators/validations.js')
+const { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid } = require('../validators/validations.js');
 
 exports.createUser = async function (req, res) {
     try {
+    
         if (!isValidRequest(req.body))
             return res.status(400).send({ status: false, message: "Request body cannot remain empty" });
 
@@ -170,120 +171,132 @@ exports.getUser = async function (req, res) {
     }
 }
 
-// exports.updateProfile = async function (req, res) {
-//     try {
-//         let userId = req.params.userId
-//         let { fname, lname, email, profileImage, phone, password, address } = req.body;
-
-//         const findUser = await UserModel.findById(userId)
-//         if (!findUser) {
-//             return res.status(404).send({ status: false, message: "No User found" });
-//         }
-//         const updatedProfile = await UserModel.findOneAndUpdate({ _id: findUser._id }, req.body, { new: true })
-//         return res.status(200).send({ status: true, message: "Success", data: updatedProfile })
-//     } catch {
-//         return res.status(500).send({ status: false, message: error.message })
-//     }
-// }
-
-
-
 exports.updateProfile = async function (req, res) {
-
     try {
+
         let files = req.files;
         let userId = req.params.userId;
 
-        if (!isValidRequest(req.body))
-            return res.status(400).send({ status: false, message: "Request body cannot remain empty" });
-            
-            const findUser = await UserModel.findById(userId)
-            if (!findUser) {
-                return res.status(404).send({ status: false, message: "No User found" });
-            }
-        let { fname, lname, phone, email, password, address,profileImage } = req.body;
-        
-if(profileImage) {
-        if (files && files.length > 0) {
-            var imageUrl = await uploadFile(files[0]);
-            req.body.profileImage = imageUrl;
+        if (!isValidObjectId(userId))
+            return res.status(400).send({ status: false, message: "Please provide valid userId" });
+
+        let { fname, lname, email, profileImage, phone, password, address } = req.body;
+
+        const findUser = await UserModel.findOne({_id: userId});
+        if (!findUser) {
+            return res.status(404).send({ status: false, message: "No User found" });
         }
-    }
 
-        if (!nameRegex(fname))
-            return res.status(400).send({ status: false, message: "Please provide valid fname, it should not contains any special characters and numbers" });
+        if (req.decodedToken != userId) return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
+        if(fname) {
+            if (!isValid(fname))
+            return res.status(400).send({ status: false, message: "fname must be present it cannot remain empty" })
+            if (!nameRegex(fname))
+                return res.status(400).send({ status: false, message: "Please provide valid fname, it should not contains any special characters and numbers" });        
+        }
+        if(lname) {
+            if (!isValid(lname))
+            return res.status(400).send({ status: false, message: "lname must be present it cannot remain empty" })
         if (!nameRegex(lname))
             return res.status(400).send({ status: false, message: "Please provide valid lname, it should not contains any special characters and numbers" });
 
-        if (email) {
-            if (!mailRegex(email))
-                return res.status(400).send({ status: false, message: "Please enter valid email" });
-            const emailId = await UserModel.findOne({ email: email });
-            console.log(emailId)
-
-            if (emailId)
-                return res.status(400).send({ status: false, message: "EmailId already taken" });
-
-            // if (!isValid(email))
-            //     return res.status(400).send({ status: false, message: "EmailId must be present" });
         }
-        if (phone) {
+
+        if(email) {
+    
+        if (findUser.email === email) 
+        return res.status(400).send({ status: false, message: "EmailId already taken" });
+
+        if (!mailRegex(email))
+        return res.status(400).send({ status: false, message: "Please enter valid email" });
+        }
+
+        if(phone) {
+            if (findUser.phone === phone)
+            return res.status(400).send({ status: false, message: "Phone number is already taken" });
 
             if (!mobileRegex(phone))
-                return res.status(400).send({ status: false, message: "Please provide valid mobile number" });
-
-            const phoneNo = await UserModel.findOne({ phone: phone });
-
-            if (phoneNo)
-                return res.status(400).send({ status: false, message: "Phone number is already taken" });
-            // if (!isValid(phone))
-            //     return res.status(400).send({ status: false, message: "Phone number must be present" });
-
+            return res.status(400).send({ status: false, message: "Please provide valid mobile number" });
         }
 
+        if(password) {
+    
+            if (!passwordRegex(password))
+            return res.status(400).send({ status: false, message: "Please enter a password which contains min 8 letters & max 15 letters, at least a symbol, upper and lower case letters and a number" });
 
-        // //  ADDRESS
-        // if (typeof address.shipping != "object" && typeof address.billing != "object")
-        //     return res.status(400).send({ status: false, message: "address must be a type of object" });
+            var encryptedPassword = await bcrypt.hash(password, 10);
+        }
+        
+        if(address){
+            address = JSON.parse(address)
+        
+            if(address.shipping){
+                if(address.shipping.street){
+                    if(!addressValid(address.shipping.street)){
+                        return res.status(400).send({ status: false, message: 'Enter street' })
+                    }
+                }
+                if(address.shipping.city){
+                    if(!nameRegex(address.shipping.city)){
+                        return res.status(400).send({ status: false, message: 'Enter city' })
+                    }
+                }
+                if(address.shipping.pincode){
+                    if(!pinValid(address.shipping.pincode)){
+                        return res.status(400).send({status: false, message: 'Enter pincode'})
+                    }
+               }
+            }
+            if(address.billing){
+                if(address.billing.street){
+                    if(!addressValid(address.billing.street)){
+                        return res.status(400).send({ status: false, message: 'Enter street' })
+                    }
+                }
+                if(address.billing.city){
+                    if(!nameRegex(address.billing.city)){
+                        return res.status(400).send({ status: false, message: 'Enter city' })
+                    }
+                }
+                if(address.billing.pincode){
+                    if(!pinValid(address.billing.pincode)){
+                        return res.status(400).send({status: false, message: 'Enter pincode'})
+                    }
+                }
+            }
+        }
 
-        // if(address.shipping) {
-        //     // if (!address.shipping.street)
-        //             if (!isValid(address.shipping.street))
-        //             return res.status(400).send({ status: false, message: "Shipping street name must be present" });
+        if (files && files.length > 0) {
+            var imageUrl = await uploadFile(files[0]);
+        
+        }
+        const newData = {};
+        newData.fname = fname;
+        newData.lname = lname;
+        newData.email = email;
+        newData.profileImage = imageUrl;
+        newData.phone = phone;
+        newData.password = encryptedPassword;
+        newData.address = {
+            shipping:{
+                street:address?.shipping?.street||findUser.address.shipping.street,
+                city:address?.shipping?.city||findUser.address.shipping.city,
+                pincode:address?.shipping?.pincode||findUser.address.shipping.pincode,
 
-        //         if (!addressValid(address.shipping.street))
-        //             return res.status(400).send({ status: false, message: "Please enter valid street name" });
+            },
+            billing:{
+                street:address?.billing?.street||findUser.address.billing.street,
+                city:address?.billing?.city||findUser.address.billing.city,
+                pincode:address?.billing?.pincode||findUser.address.billing.pincode,
 
-        //         if (!nameRegex(address.shipping.city))
-        //             return res.status(400).send({ status: false, message: "Please enter valid city name" });
+            }
+        }
 
-        //         if (!pinValid(address.shipping.pincode))
-        //             return res.status(400).send({ status: false, message: "Pincode is not valid" });
-        // }
-
-        // if(address.billing) {
-
-        //         if (!addressValid(address.billing.street))
-        //             return res.status(400).send({ status: false, message: "Please enter valid street name" });
-
-        //         if (!nameRegex(address.billing.city))
-        //             return res.status(400).send({ status: false, message: "Please enter valid city name" });
-
-        //         if (!pinValid(address.billing.pincode))
-        //             return res.status(400).send({ status: false, message: "Pincode is not valid" });
-        // }
-
-        const updatedProfile = await UserModel.findOneAndUpdate({ _id: findUser._id }, req.body, { new: true })
+        
+        const updatedProfile = await UserModel.findOneAndUpdate({ _id: findUser._id }, newData, { new: true })
         return res.status(200).send({ status: true, message: "Success", data: updatedProfile })
-    } catch (error) {
+    } catch(error) {
         return res.status(500).send({ status: false, message: error.message })
     }
-};
-
-//createuser me profileImage validation
-
-
-
-
-
+}
