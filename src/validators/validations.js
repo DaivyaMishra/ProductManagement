@@ -53,5 +53,11 @@ const pinValid = (value) => {
         return true;
 }
 
-module.exports = { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid }
+const imageValid = (value) => {
+    let imageRegex = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+    if(imageRegex.test(value))
+    return true;
+}
+
+module.exports = { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid }
 
