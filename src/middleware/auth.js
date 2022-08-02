@@ -32,7 +32,7 @@ const { isValidObjectId } = require('../validators/validations.js')
 
 
 
-exports.authentication = async function (req, res, next) {
+const authentication = async function (req, res, next) {
     try {
 
         let token = req.headers["Authorization"] || req.headers["authorization"];
@@ -64,7 +64,7 @@ exports.authentication = async function (req, res, next) {
 
 
 /***************(Authorization)**************** */
-exports.authorise = async function (req, res, next) {
+const authorise = async function (req, res, next) {
     try {
 
         let loginUser = decodedToken.userId;
@@ -97,3 +97,4 @@ exports.authorise = async function (req, res, next) {
 
 }
 
+module.exports = { authentication, authorise};

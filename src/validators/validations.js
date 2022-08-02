@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const multer = require('multer');
+
 
 const isValidObjectId = (objectId) => {
     if (mongoose.Types.ObjectId.isValid(objectId)) return true;
@@ -7,8 +7,10 @@ const isValidObjectId = (objectId) => {
 };
 
 const isValid = (value) => {
-    if (typeof value === "undefined" || value === "null") return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
+    if (typeof (value) === 'undefined' || value === null) return false
+    if (typeof (value) === "string" && value.trim().length == 0) return false
+    //if (typeof (value) !== "string") return false
+
     return true;
 
 }
@@ -31,7 +33,7 @@ const addressValid = (value) => {
 }
 
 const mobileRegex = (value) => {
-    let phoneRegex =  /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
+    let phoneRegex = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
     if (phoneRegex.test(value))
         return true;
 }
@@ -55,19 +57,31 @@ const pinValid = (value) => {
 }
 
 const imageValid = (value) => {
-    let imageRegex = /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i;
-    if(imageRegex.test(value))
-    return true;
+    let imageRegex = /(\/*\.(?:png|gif|webp|jpeg|jpg))/;
+    if (imageRegex.test(value))
+        return true;
+}
+const isValidSizes = (size) => {
+    const validSize = size.split(",").map(x => x.toUpperCase().trim())
+    let givenSizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+    for (let i = 0; i < validSize.length; i++) {
+        if (!givenSizes.includes(validSize[i])) {
+            return false
+        }
+    }
+    return validSize
+}
+
+const alphaNumericValid = (value) => {
+    let alphaRegex =/^[a-zA-Z0-9-_ ]+$/;   
+    if (alphaRegex.test(value))
+        return true;                                    // /^[- a-zA-Z'\.,][^/]{1,150}/ allows every things
+}
+
+const isValidremoveProduct = function(value) {
+    return [0,1].indexOf(value) !== -1
 }
 
 
-const fileFilter = async function(req, file, callback) {
-    var ext = path.extname(file.originalname);
-       if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg' && ext !== '.zip') {
-           return callback(new Error('Only images and zip are allowed'));
-       }
-       callback(null, true); 
-     }
-
-module.exports = { fileFilter, isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid }
+module.exports = { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid, isValidSizes, alphaNumericValid, isValidremoveProduct}
 
