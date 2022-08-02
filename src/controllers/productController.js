@@ -234,7 +234,8 @@ const updateProduct = async function (req, res) {
             return res.status(400).send({ status: false, message: "enter valid productid" })
         console.log(productId)
         const findProduct = await ProductModel.findOne({ _id: productId, isDeleted: false })
-        if (!findProduct) return res.status(404).send({ status: false, message: "product not available" })
+        if (!findProduct) 
+        return res.status(404).send({ status: false, message: "product not available" })
 
         let requestBody = req.body;
         let files = req.files;
@@ -312,7 +313,7 @@ const updateProduct = async function (req, res) {
         }
 
         if (style) {
-            if (!nameRegex(style)) return res.status(400).send({ status: false, message: "enter valid style" });
+            if (!nameRegex(style)) return res.status(400).send({ status: false, message: "Enter valid style" });
             // findProduct.style = style
         }
 

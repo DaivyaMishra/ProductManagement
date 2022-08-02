@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
         productId: {
             type: ObjectId,
             refs: 'Product',
-            // required: true
+            required: true
         },
         quantity: {
             type: Number,
@@ -22,17 +22,17 @@ const orderSchema = new mongoose.Schema({
     }],
     totalPrice: {
         type: Number,
-        //required: true
+        required: true
         //comment: "Holds total price of all the items in the cart"
     },
     totalItems: {
         type: Number,
-        //required: true,
+        required: true,
         //comment: "Holds total number of items in the cart"
     },
     totalQuantity: {
         type: Number,
-        //required: true,
+        required: true,
         //comment: "Holds total number of quantity in the cart"
     },
     cancellable: {
@@ -42,7 +42,7 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         default: 'pending',
-        enum: ["pending", "completed", "cancled"]
+        enum: ["pending", "completed", "cancelled"]
     },
     deletedAt: {
         type: Date
