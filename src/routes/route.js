@@ -30,15 +30,15 @@ router.put('/products/:productId', updateProduct);
 
 
 //===================================================[CART ROUTE HANDLER]===========================================================
-router.post('/users/:userId/cart', authentication, createCart);
+router.post('/users/:userId/cart',  createCart);
 router.put('/users/:userId/cart', authentication, updateCart);
 router.get('/users/:userId/cart', authentication, getCart);
 router.delete('/users/:userId/cart', authentication, deleteCart);
 
 
 //===================================================[ORDER ROUTE HANDLER]===========================================================
- router.post('/users/:userId/orders', authentication, createOrder);
- router.put('/users/:userId/orders', authentication, updateOrder);
+ router.post('/users/:userId/orders',  createOrder);
+ router.put('/users/:userId/orders', updateOrder);
 
 
 module.exports = router;

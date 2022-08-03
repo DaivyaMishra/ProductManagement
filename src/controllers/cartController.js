@@ -101,17 +101,17 @@ const createCart = async function (req, res) {
         if (!isValidObjectId(userId))
             return res.status(400).send({ status: false, message: `The given userId: ${userId} is not in proper format` });
 
-        if (!isValidObjectId(productId))
-            return res.status(400).send({ status: true, message: `The given productId: ${productId} is not in proper format` });
         if (!isValid(productId))
             return res.status(400).send({ status: false, message: "Please provide productId" });
+        if (!isValidObjectId(productId))
+            return res.status(400).send({ status: true, message: `The given productId: ${productId} is not in proper format` });
 
         const findUser = await UserModel.findOne({ _id: userId });
         if (!findUser)
             return res.status(404).send({ status: false, message: `User details not found with this provided userId: ${userId}` });
 
-        if (req.decodedToken != userId)
-            return res.status(403).send({ status: false, message: "Error, authorization failed" });
+        // if (req.decodedToken != userId)
+        //     return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
         const findProduct = await ProductModel.findOne({ _id: data.productId, isDeleted: false });
         if (!findProduct)
@@ -137,10 +137,10 @@ const createCart = async function (req, res) {
             return res.status(201).send({ status: true, message: "Success", data: cartCreated });
         }
         if (findCart) {
-            if (!isValidObjectId(cartId))
-                return res.status(400).send({ status: false, message: `The given cartId: ${data.cartId} is not in proper format` });
             if (!isValid(cartId))
                 return res.status(400).send({ status: false, message: "Please provide cartId" });
+            if (!isValidObjectId(cartId))
+                return res.status(400).send({ status: false, message: `The given cartId: ${data.cartId} is not in proper format` });
             if (findCart._id.toString() != cartId)
                 return res.status(404).send({ status: false, message: `cartId provided does not belongs to this user with userId: ${userId}` });
 
