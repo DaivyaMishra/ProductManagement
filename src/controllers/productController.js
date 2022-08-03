@@ -41,14 +41,20 @@ const createProduct = async function (req, res) {
         //validations for currencyId
         if (!isValid(data.currencyId))
             return res.status(400).send({ status: false, message: "CurrencyId is required" });
-        if (!(data.currencyId == "INR"))
-            return res.status(400).send({ status: false, message: "CurrencyId shoould INR" });
+        // if (!(data.currencyId == "INR"))
+        //     return res.status(400).send({ status: false, message: "CurrencyId shoould INR" });
 
         // validations for currencyFormat
-        if (!isValid(data.currencyFormat))
-            return res.status(400).send({ status: false, message: "Currency Format is required" });
-        if (!(data.currencyFormat == "₹"))
-            return res.status(400).send({ status: false, message: "CurrencyFormat should be '₹'" });
+        // if (!isValid(data.currencyFormat))
+        //     return res.status(400).send({ status: false, message: "Currency Format is required" });
+        // if (!(data.currencyFormat == "₹"))
+        //     return res.status(400).send({ status: false, message: "CurrencyFormat should be '₹'" });
+
+        if(data.currencyId === 'INR' || data.currencyId === 'USD') {
+            return res.status(400).send({status: false , message: "only this"})
+        }
+
+
 
 
         //validation for isFreeShipping
@@ -257,6 +263,7 @@ const updateProduct = async function (req, res) {
         // no need to validate
 
         // if (description) {
+            
         //     // if (!isValid(description))
         //     //     return res.status(400).send({ status: false, message: "description is required" });
         //     if (!alphaNumericValid(description))

@@ -4,7 +4,7 @@ const router = express.Router();
 
 //===============================================[ALL MODULES ARE REQUIRED HERE]===========================================================
 const { createUser, loginUser, getUser, updateProfile } = require("../controllers/userController.js");
-const { authentication } = require("../middleware/auth.js");
+const { authentication, authorise } = require("../middleware/auth.js");
 
 
 const { createProduct, getProductDetails, getProduct, deleteProduct, updateProduct } = require("../controllers/productController.js");

@@ -10,25 +10,30 @@ const userSchema = new mongoose.Schema({
     lname: {
         type: String,
         required: true,
+        trim: true
     },
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     profileImage: {
         type: String,
         required: true,
-    }, // s3 link
+        trim: true
+    }, 
     phone: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     password: {
         type: String,
         required: true,
-    }, // encrypted password
+        trim: true
+    }, 
     address: {
         shipping: {
             street: {

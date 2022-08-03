@@ -100,8 +100,8 @@ const updateOrder = async function (req, res) {
         if (!findUser)
             return res.status(404).send({ status: false, message: `User details not found with this provided userId: ${userId}` });
 
-        // if (req.decodedToken != userId)
-        //     return res.status(403).send({ status: false, message: "Error, authorization failed" });
+        if (req.decodedToken != userId)
+            return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
         const findOrder = await OrderModel.findOne({ _id: orderId, userId: userId })
         if (!findOrder)

@@ -110,8 +110,8 @@ const createCart = async function (req, res) {
         if (!findUser)
             return res.status(404).send({ status: false, message: `User details not found with this provided userId: ${userId}` });
 
-        // if (req.decodedToken != userId)
-        //     return res.status(403).send({ status: false, message: "Error, authorization failed" });
+        if (req.decodedToken != userId)
+            return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
         const findProduct = await ProductModel.findOne({ _id: data.productId, isDeleted: false });
         if (!findProduct)
@@ -208,6 +208,9 @@ const updateCart = async function (req, res) {
         if (!searchCart)
             return res.status(404).send({ status: false, message: `Cart does not exists with this provided cartId: ${cartId}` })
 
+            if (searchCart.items.length == 0)
+            return res.status(400).send({ status: false, message: "You have not added any products in your cart" });
+
         if (!isValid(productId))
             return res.status(400).send({ status: false, message: "Please provide productId" })
         if (!isValidObjectId(productId))
@@ -270,7 +273,7 @@ const getCart = async function (req, res) {
             return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
         let getData = await CartModel.findOne({ userId })
-        if (!data) {
+        if (!getData) {
             return res.status(404).send({ status: false, message: `Cart does not Exist with this userId :${userId}` })
         }
 

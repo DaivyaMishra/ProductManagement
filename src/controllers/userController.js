@@ -14,9 +14,9 @@ const createUser = async function (req, res) {
         if (!isValidRequest(req.body))
             return res.status(400).send({ status: false, message: "Request body cannot remain empty" });
 
-        let { fname, lname, email, profileImage, phone, password, address } = req.body;
+        let { fname, lname, email, phone, password, address } = req.body;
         let files = req.files;
-        // console.log(files)
+
 
         if (!isValid(fname))
             return res.status(400).send({ status: false, message: "fname must be present it cannot remain empty" })
@@ -40,6 +40,8 @@ const createUser = async function (req, res) {
 
 
         if (files && files.length > 0) {
+            if (!imageValid(files[0].originalname))
+                return res.status(400).send({ status: false, message: "file format" })
             var imageUrl = await uploadFile(files[0]);
             req.body.profileImage = imageUrl;
         } else {
@@ -124,7 +126,7 @@ const createUser = async function (req, res) {
             }
 
             if (billing.pincode) {
-                if (!isValid(billing.city))
+                if (!isValid(billing.pincode))
                     return res.status(400).send({ status: false, message: "Billing pincode must be present" });
                 if (!pinValid(billing.pincode))
                     return res.status(400).send({ status: false, message: "Billing pincode is not valid" });
@@ -161,9 +163,10 @@ const loginUser = async function (req, res) {
         let user = await UserModel.findOne({ email: email });
         if (!user)
             return res.status(400).send({ status: false, message: "Credential is not correct", });
-
-        let isValidPassword = await bcrypt.compare(password, user.password)
-        if (!isValidPassword) return res.status(404).send({ status: false, message: "Password is not correct" });
+        //password = password.trim();
+        let isValidPassword = await bcrypt.compare(password.trim(), user.password)
+        if (!isValidPassword)
+            return res.status(404).send({ status: false, message: "Password is not correct" });
 
 
         let token = jwt.sign(
@@ -198,14 +201,15 @@ const getUser = async function (req, res) {
         if (!isValidObjectId(userId))
             return res.status(400).send({ status: false, message: "Please provide valid userId" });
 
-        if (req.decodedToken != userId) return res.status(403).send({ status: false, message: "Error, authorization failed" })
-
         const checkUserId = await UserModel.findById(userId);
-        if (!checkUserId) {
+        if (!checkUserId)
             return res.status(404).send({ status: false, message: "No User found" });
-        } else {
-            return res.status(200).send({ status: true, message: "User profile details", data: checkUserId })
-        }
+
+        if (req.decodedToken != userId)
+            return res.status(403).send({ status: false, message: "Error, authorization failed" })
+
+        return res.status(200).send({ status: true, message: "User profile details", data: checkUserId })
+
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -365,7 +369,8 @@ const updateProfile = async function (req, res) {
             return res.status(404).send({ status: false, message: "No User found" });
         }
 
-        if (req.decodedToken != userId) return res.status(403).send({ status: false, message: "Error, authorization failed" });
+        if (req.decodedToken != userId)
+            return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
         if (fname) {
             if (!isValid(fname))
