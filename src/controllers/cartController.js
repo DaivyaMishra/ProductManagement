@@ -272,7 +272,10 @@ const getCart = async function (req, res) {
         if (req.decodedToken != userId)
             return res.status(403).send({ status: false, message: "Error, authorization failed" });
 
-        let getData = await CartModel.findOne({ userId })
+        let getData = await CartModel.findOne({ userId });
+        if (getData.items.length == 0)
+        return res.status(400).send({ status: false, message: "no items present" });
+
         if (!getData) {
             return res.status(404).send({ status: false, message: `Cart does not Exist with this userId :${userId}` })
         }

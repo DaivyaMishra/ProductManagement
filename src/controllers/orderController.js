@@ -16,6 +16,10 @@ const createOrder = async function (req, res) {
         const data = req.body;
         const { cartId } = data;
 
+        if (!isValidRequest(data))
+            return res.status(400).send({ status: true, message: "Request body cannot remain empty" });
+
+
         if (!isValid(cartId))
             return res.status(400).send({ status: false, message: "CartId is required" });
 
@@ -66,7 +70,11 @@ const createOrder = async function (req, res) {
             items: orderCreated.items,
             totalPrice: orderCreated.totalPrice,
             totalItems: orderCreated.totalItems,
-            totalQuantity: orderCreated.totalQuantity
+            totalQuantity: orderCreated.totalQuantity,
+            cancellable: orderCreated.cancellable,
+            status: orderCreated.status,
+            createdAt: orderCreated.createdAt,
+            updatedAt: orderCreated.updatedAt
         }
 
         const updatedCart = await CartModel.findOneAndUpdate({ _id: cartId, userId: userId }, { $set: { items: [], totalPrice: 0, totalItems: 0 } }, { new: true })
@@ -143,12 +151,39 @@ const updateOrder = async function (req, res) {
             }
         }
 
-        // const UpdateStatus = await OrderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: 'cancelled', isDeleted: true, deletedAt: Date.now() } }, { new: true })
-        // return res.status(200).send({ status: true, message: 'Success', data: UpdateStatus });
+        if (findOrder.cancellable == false) {
+
+            if (!isValid(status))
+                return res.status(400).send({ status: false, message: "Status is required and the fields will be 'pending', 'completed', 'cancelled' only" });
 
 
+            if (status == 'completed') {
+                if (findOrder.status == 'pending') {
+                    const UpdateStatus = await OrderModel.findOneAndUpdate({ _id: orderId }, { $set: { status: status, isDeleted: true, deletedAt: Date.now() } }, { new: true })
+                    return res.status(400).send({ status: true, message: 'Success', data: UpdateStatus });
+                }
+                if (findOrder.status == 'completed') {
+                    return res.status(400).send({ status: false, message: "The status is already completed" });
+                }
+                if (findOrder.status == 'cancelled') {
+                    return res.status(400).send({ status: false, message: "The status is cancelled, you cannot change the status" });
+                }
+            }
+
+            if (status == 'cancelled') {
+                if (findOrder.status == 'pending') {
+                    return res.status(400).send({ status: true, message: "The status is pending, and you can't cancel the product" });
+                }
+                if (findOrder.status == 'completed') {
+                    return res.status(400).send({ status: false, message: "The status is already completed" });
+                }
+                if (findOrder.status == 'cancelled') {
+                    return res.status(400).send({ status: false, message: "The order can't be cancelled" });
+                }
 
 
+            }
+        }
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })

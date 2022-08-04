@@ -4,7 +4,7 @@ const router = express.Router();
 
 //===============================================[ALL MODULES ARE REQUIRED HERE]===========================================================
 const { createUser, loginUser, getUser, updateProfile } = require("../controllers/userController.js");
-const { authentication, authorise } = require("../middleware/auth.js");
+const { authentication } = require("../middleware/auth.js");
 
 
 const { createProduct, getProductDetails, getProduct, deleteProduct, updateProduct } = require("../controllers/productController.js");
@@ -30,15 +30,15 @@ router.put('/products/:productId', updateProduct);
 
 
 //===================================================[CART ROUTE HANDLER]===========================================================
-router.post('/users/:userId/cart',  createCart);
+router.post('/users/:userId/cart', authentication, createCart);
 router.put('/users/:userId/cart', authentication, updateCart);
 router.get('/users/:userId/cart', authentication, getCart);
 router.delete('/users/:userId/cart', authentication, deleteCart);
 
 
 //===================================================[ORDER ROUTE HANDLER]===========================================================
- router.post('/users/:userId/orders',  createOrder);
- router.put('/users/:userId/orders', updateOrder);
+ router.post('/users/:userId/orders', authentication, createOrder);
+ router.put('/users/:userId/orders', authentication, updateOrder);
 
 
 module.exports = router;

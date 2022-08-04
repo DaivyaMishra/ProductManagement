@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
             },
             pincode: {
                 type: Number,
-                required: true,
+                required: true
             }
         },
 

@@ -8,9 +8,7 @@ const isValidObjectId = (objectId) => {
 
 const isValid = (value) => {
     if (typeof (value) === 'undefined' || value === null) return false
-    if (typeof (value) === "string" && value.trim().length == 0) return false
-    //if (typeof (value) !== "string") return false
-
+    if (typeof (value) === "string" && value.trim().length === 0) return false
     return true;
 
 }
@@ -69,7 +67,7 @@ const isValidSizes = (size) => {
             return false
         }
     }
-    return validSize
+    return true
 }
 
 const alphaNumericValid = (value) => {
@@ -83,5 +81,5 @@ const isValidremoveProduct = function(value) {
 }
 
 
-module.exports = { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid, isValidSizes, alphaNumericValid, isValidremoveProduct}
+module.exports = { isKeyPresent, isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid, isValidSizes, alphaNumericValid, isValidremoveProduct}
 

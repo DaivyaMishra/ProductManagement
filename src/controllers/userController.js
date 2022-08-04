@@ -8,6 +8,7 @@ const { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailR
 
 //===================================================[API:FOR CREATING USER DB]===========================================================
 
+
 const createUser = async function (req, res) {
     try {
 
@@ -148,6 +149,7 @@ const createUser = async function (req, res) {
 
 //===================================================[API:FOR CREATING LOGIN USER]===========================================================
 
+
 const loginUser = async function (req, res) {
     try {
         if (!isValidRequest(req.body))
@@ -163,7 +165,7 @@ const loginUser = async function (req, res) {
         let user = await UserModel.findOne({ email: email });
         if (!user)
             return res.status(400).send({ status: false, message: "Credential is not correct", });
-        //password = password.trim();
+
         let isValidPassword = await bcrypt.compare(password.trim(), user.password)
         if (!isValidPassword)
             return res.status(404).send({ status: false, message: "Password is not correct" });
@@ -192,6 +194,7 @@ const loginUser = async function (req, res) {
 
 //===================================================[API:FOR GETTING THE USER DETAILS]===========================================================
 
+
 const getUser = async function (req, res) {
     try {
         const userId = req.params.userId;
@@ -201,153 +204,23 @@ const getUser = async function (req, res) {
         if (!isValidObjectId(userId))
             return res.status(400).send({ status: false, message: "Please provide valid userId" });
 
-        const checkUserId = await UserModel.findById(userId);
-        if (!checkUserId)
-            return res.status(404).send({ status: false, message: "No User found" });
-
         if (req.decodedToken != userId)
             return res.status(403).send({ status: false, message: "Error, authorization failed" })
 
-        return res.status(200).send({ status: true, message: "User profile details", data: checkUserId })
+        const checkUserId = await UserModel.findById(userId);
+        if (!checkUserId) {
+            return res.status(404).send({ status: false, message: "No User found" });
+        }
+
+        if (checkUserId) {
+            return res.status(200).send({ status: true, message: "User profile details", data: checkUserId })
+        }
 
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-
-
-// exports.updateProfile = async function (req, res) {
-//     try {
-
-//         let files = req.files;
-//         let userId = req.params.userId;
-//         if (!isValidRequest(req.body))
-//             return res.status(400).send({ status: false, message: "Request body cannot remain empty" });
-
-//         if (!isValidObjectId(userId))
-//             return res.status(400).send({ status: false, message: "Please provide valid userId" });
-
-//         let { fname, lname, email, profileImage, phone, password, address } = req.body;
-
-//         const findUser = await UserModel.findOne({ _id: userId });
-//         if (!findUser) {
-//             return res.status(404).send({ status: false, message: "No User found" });
-//         }
-
-//         if (req.decodedToken != userId) return res.status(403).send({ status: false, message: "Error, authorization failed" });
-
-//         if (fname) {
-//             if (!isValid(fname))
-//                 return res.status(400).send({ status: false, message: "fname must be present it cannot remain empty" })
-//             if (!nameRegex(fname))
-//                 return res.status(400).send({ status: false, message: "Please provide valid fname, it should not contains any special characters and numbers" });
-//         }
-//         if (lname) {
-//             if (!isValid(lname))
-//                 return res.status(400).send({ status: false, message: "lname must be present it cannot remain empty" })
-//             if (!nameRegex(lname))
-//                 return res.status(400).send({ status: false, message: "Please provide valid lname, it should not contains any special characters and numbers" });
-
-//         }
-
-//         if (email) {
-
-//             if (findUser.email === email)
-//                 return res.status(400).send({ status: false, message: "EmailId already taken" });
-
-//             if (!mailRegex(email))
-//                 return res.status(400).send({ status: false, message: "Please enter valid email" });
-//         }
-
-//         if (phone) {
-//             if (findUser.phone === phone)
-//                 return res.status(400).send({ status: false, message: "Phone number is already taken" });
-
-//             if (!mobileRegex(phone))
-//                 return res.status(400).send({ status: false, message: "Please provide valid mobile number" });
-//         }
-
-//         if (password) {
-
-//             if (!passwordRegex(password))
-//                 return res.status(400).send({ status: false, message: "Please enter a password which contains min 8 letters & max 15 letters, at least a symbol, upper and lower case letters and a number" });
-
-//             var encryptedPassword = await bcrypt.hash(password, 10);
-//         }
-
-//         if (address) {
-//             address = JSON.parse(address)
-
-//             if (address.shipping) {
-//                 if (address.shipping.street) {
-//                     if (!addressValid(address.shipping.street)) {
-//                         return res.status(400).send({ status: false, message: 'Enter street' })
-//                     }
-//                 }
-//                 if (address.shipping.city) {
-//                     if (!nameRegex(address.shipping.city)) {
-//                         return res.status(400).send({ status: false, message: 'Enter city' })
-//                     }
-//                 }
-//                 if (address.shipping.pincode) {
-//                     if (!pinValid(address.shipping.pincode)) {
-//                         return res.status(400).send({ status: false, message: 'Enter pincode' })
-//                     }
-//                 }
-//             }
-//             if (address.billing) {
-//                 if (address.billing.street) {
-//                     if (!addressValid(address.billing.street)) {
-//                         return res.status(400).send({ status: false, message: 'Enter street' })
-//                     }
-//                 }
-//                 if (address.billing.city) {
-//                     if (!nameRegex(address.billing.city)) {
-//                         return res.status(400).send({ status: false, message: 'Enter city' })
-//                     }
-//                 }
-//                 if (address.billing.pincode) {
-//                     if (!pinValid(address.billing.pincode)) {
-//                         return res.status(400).send({ status: false, message: 'Enter pincode' })
-//                     }
-//                 }
-//             }
-//         }
-
-// if (files && files.length > 0) {
-//     var imageUrl = await uploadFile(files[0]);
-
-// }
-//         const newData = {};
-//         newData.fname = fname;
-//         newData.lname = lname;
-//         newData.email = email;
-//         newData.profileImage = imageUrl;
-//         newData.phone = phone;
-//         newData.password = encryptedPassword;
-//         newData.address = {
-//             shipping: {
-//                 street: address?.shipping?.street || findUser.address.shipping.street,
-//                 city: address?.shipping?.city || findUser.address.shipping.city,
-//                 pincode: address?.shipping?.pincode || findUser.address.shipping.pincode,
-
-//             },
-//             billing: {
-//                 street: address?.billing?.street || findUser.address.billing.street,
-//                 city: address?.billing?.city || findUser.address.billing.city,
-//                 pincode: address?.billing?.pincode || findUser.address.billing.pincode,
-
-//             }
-//         }
-
-
-//         const updatedProfile = await UserModel.findOneAndUpdate({ _id: findUser._id }, newData, { new: true })
-//         return res.status(200).send({ status: true, message: "Success", data: updatedProfile })
-//     } catch (error) {
-//         return res.status(500).send({ status: false, message: error.message })
-//     }
-// }
 
 
 //===================================================[API:FOR UPDATE USER]===========================================================
@@ -363,18 +236,21 @@ const updateProfile = async function (req, res) {
 
         let { fname, lname, email, phone, password, address } = req.body;
 
+        if (!isValidRequest(req.body))
+            return res.status(400).send({ status: false, message: "data for updation is required" });
+
+        if (req.decodedToken != userId)
+            return res.status(403).send({ status: false, message: "Error, authorization failed" });
+
         const findUser = await UserModel.findOne({ _id: userId });
 
         if (!findUser) {
             return res.status(404).send({ status: false, message: "No User found" });
         }
 
-        if (req.decodedToken != userId)
-            return res.status(403).send({ status: false, message: "Error, authorization failed" });
-
         if (fname) {
             if (!isValid(fname))
-                return res.status(400).send({ status: false, message: "fname must be present it cannot remain empty" })
+                return res.status(400).send({ status: false, message: "fname must be present it cannot remain empty" });
             if (!nameRegex(fname))
                 return res.status(400).send({ status: false, message: "Please provide valid fname, it should not contains any special characters and numbers" });
             findUser.fname = fname;
@@ -482,11 +358,11 @@ const updateProfile = async function (req, res) {
             var imageUrl = await uploadFile(files[0]);
 
             findUser.profileImage = imageUrl;
-
         }
 
-        const updatedProfile = await UserModel.findOneAndUpdate({ _id: findUser._id }, findUser, { new: true })
-        return res.status(200).send({ status: true, message: "Success", data: updatedProfile })
+        const updatedProfile = await UserModel.findOneAndUpdate({ _id: findUser._id }, findUser, { new: true });
+        return res.status(200).send({ status: true, message: "Success", data: updatedProfile });
+
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
