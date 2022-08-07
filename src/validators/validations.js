@@ -60,7 +60,7 @@ const imageValid = (value) => {
         return true;
 }
 const isValidSizes = (size) => {
-    const validSize = size.split(",").map(x => x.toUpperCase().trim())
+    const validSize = size.split(",").map(x => x.trim())
     let givenSizes = ["S", "XS", "M", "X", "L", "XXL", "XL"]
     for (let i = 0; i < validSize.length; i++) {
         if (!givenSizes.includes(validSize[i])) {
@@ -81,5 +81,5 @@ const isValidremoveProduct = function(value) {
 }
 
 
-module.exports = { isKeyPresent, isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid, isValidSizes, alphaNumericValid, isValidremoveProduct}
+module.exports = { isValidObjectId, isValid, isValidRequest, nameRegex, addressValid, mailRegex, mobileRegex, passwordRegex, pinValid, imageValid, isValidSizes, alphaNumericValid, isValidremoveProduct}
 

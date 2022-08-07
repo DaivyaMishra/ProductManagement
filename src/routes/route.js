@@ -7,7 +7,7 @@ const { createUser, loginUser, getUser, updateProfile } = require("../controller
 const { authentication } = require("../middleware/auth.js");
 
 
-const { createProduct, getProductDetails, getProduct, deleteProduct, updateProduct } = require("../controllers/productController.js");
+const { createProduct, getProductDetails, getProductById, deleteProduct, updateProduct } = require("../controllers/productController.js");
 const { createCart, updateCart, getCart, deleteCart } = require("../controllers/cartController.js");
 
 
@@ -24,7 +24,7 @@ router.put('/user/:userId/profile', authentication, updateProfile);
 
 router.post('/products', createProduct);
 router.get('/products', getProductDetails);
-router.get('/products/:productId', getProduct);
+router.get('/products/:productId', getProductById);
 router.delete('/products/:productId', deleteProduct);
 router.put('/products/:productId', updateProduct);
 
