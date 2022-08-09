@@ -50,7 +50,7 @@ const createCart = async function (req, res) {
             if (cartId)
                 return res.status(404).send({ status: false, message: `Cart not exists for this userId: ${userId}` });
 
-            // creatiging the new Cart
+            // creating the new Cart
             let cartData = {
                 userId: userId,
                 items: [{

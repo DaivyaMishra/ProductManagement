@@ -15,17 +15,15 @@ const createProduct = async function (req, res) {
         if (!isValidRequest(data))
             return res.status(400).send({ status: false, message: "Product data is required" });
 
-        // uniqueness of the title
-        if (await ProductModel.findOne({ title: data.title })) {
-            return res.status(400).send({ status: false, message: "Product already exists" });
-        }
-
-
         //validation for title
         if (!isValid(data.title))
             return res.status(400).send({ status: false, message: "Title is required" });
         if (!alphaNumericValid(data.title))
             return res.status(400).send({ status: false, message: "Please provide valid title-name of the prodduct" });
+        // uniqueness of the title
+        if (await ProductModel.findOne({ title: data.title })) {
+            return res.status(400).send({ status: false, message: "Product already exists" });
+        }
 
 
         //validation for description
@@ -33,7 +31,6 @@ const createProduct = async function (req, res) {
             return res.status(400).send({ status: false, message: "Description is required " });
         if (!alphaNumericValid(data.description))
             return res.status(400).send({ status: false, message: "Please provide valid description" });
-
 
         //validation for price
         if (!isValid(data.price))
@@ -43,20 +40,17 @@ const createProduct = async function (req, res) {
         if (isNaN(Number(data.price)))
             return res.status(400).send({ status: false, message: "Price should be Number" });
 
-
         //validations for currencyId
         if (!isValid(data.currencyId))
             return res.status(400).send({ status: false, message: "CurrencyId is required" });
         if (!(data.currencyId == "INR"))
             return res.status(400).send({ status: false, message: "CurrencyId shoould INR" });
 
-
         // validations for currencyFormat
         if (!isValid(data.currencyFormat))
             return res.status(400).send({ status: false, message: "currencyFormat is required" });
         if (!(data.currencyFormat == "₹"))
             return res.status(400).send({ status: false, message: "CurrencyFormat should be '₹'" });
-
 
         //validation for isFreeShipping
         if (data.hasOwnProperty("isFreeShipping")) {
@@ -66,22 +60,6 @@ const createProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "isFreeShipping is boolean" });
         }
 
-        //validations for product image
-        if (data.hasOwnProperty("productImage") || !files) {
-            return res.status(400).send({ status: false, message: "productImage is required" });
-        }
-        if (files.length == 0) {
-            return res.status(400).send({ status: false, message: "No product image found" });
-        }
-
-        if (!imageValid(files[0].originalname)) {
-            return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
-        }
-
-        //uploading the photo
-        let fileUrl = await uploadFile(files[0]);
-        data.productImage = fileUrl;
-
         if (data.hasOwnProperty("style")) {
             if (!isValid(data.style))
                 return res.status(400).send({ status: false, message: "Product style-name is required" });
@@ -89,6 +67,12 @@ const createProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "Please provide valid style-name of the prodduct" });
         }
 
+        if (data.hasOwnProperty("installments")) {
+            if (!isValid(data.installments))
+                return res.status(400).send({ status: false, message: "Product installments is required" });
+            if (!Number.isInteger(Number(data.installments)))
+                return res.status(400).send({ status: false, message: "Enter valid Installments(i.e. it must be a whole number)" });
+        }
 
         // validations for availableSize
         if (data.hasOwnProperty("availableSizes")) {
@@ -105,12 +89,21 @@ const createProduct = async function (req, res) {
             }
         }
 
-        if (data.hasOwnProperty("installments")) {
-            if (!isValid(data.installments))
-                return res.status(400).send({ status: false, message: "Product installments is required" });
-            if (!Number.isInteger(Number(data.installments)))
-                return res.status(400).send({ status: false, message: "Enter valid Installments(i.e. it must be a whole number)" });
+        //validations for product image
+        if (data.hasOwnProperty("productImage") || !files) {
+            return res.status(400).send({ status: false, message: "productImage is required" });
         }
+        if (files.length == 0) {
+            return res.status(400).send({ status: false, message: "No product image found" });
+        }
+        if (!imageValid(files[0].originalname)) {
+            return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
+        }
+
+        //uploading the photo
+        let fileUrl = await uploadFile(files[0]);
+        data.productImage = fileUrl;
+
 
         // creating the collection
         let savedData = await ProductModel.create(data);
@@ -251,6 +244,8 @@ const getProductById = async function (req, res) {
 
 const updateProduct = async function (req, res) {
     try {
+        let requestBody = JSON.parse(JSON.stringify(req.body));
+        let files = req.files;
         let productId = req.params.productId;
 
         // validation for product ID
@@ -261,9 +256,6 @@ const updateProduct = async function (req, res) {
         const findProduct = await ProductModel.findOne({ _id: productId, isDeleted: false })
         if (!findProduct)
             return res.status(404).send({ status: false, message: "Product not available" })
-
-        let requestBody = JSON.parse(JSON.stringify(req.body));
-        let files = req.files;
 
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = requestBody
 
